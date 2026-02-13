@@ -1,0 +1,11 @@
+{
+  "name": "gas-project",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "gas-project web preview",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "postCreateCommand": "npm install"
+}

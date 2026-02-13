@@ -5,7 +5,12 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "health:check": "node scripts/health-check.mjs",
+    "clasp:login": "npx clasp login --no-localhost",
+    "clasp:status": "npx clasp status",
+    "clasp:push": "npx clasp push",
+    "clasp:deploy": "npx clasp deploy"
   },
   "keywords": [],
   "author": "",
