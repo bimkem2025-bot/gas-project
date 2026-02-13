@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistem Registrasi</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      max-width: 900px;
+      margin: auto;
+      position: relative;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .col {
+      flex: 1;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* DROPDOWN FIX */
+    #searchResults {
+      position: absolute;
+      width: 100%;
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 999;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    .search-result-item {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .search-result-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    #resultBox {
+      margin-top: 15px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <h2>Registrasi Klien</h2>
+
+  <!-- SEARCHABLE DROPDOWN -->
+  <div class="form-group">
+    <label>Daftar Klien (Tahun Berjalan)</label>
+    <input type="text" id="clientSearch" placeholder="Ketik nama klien...">
+    <div id="searchResults"></div>
+  </div>
+
+  <button class="btn-primary hidden" id="addNewBtn">+ Tambah Klien Baru</button>
+
+  <!-- FORM DETAIL -->
+  <div id="formSection" class="hidden">
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label>Nama Klien</label>
+          <input type="text" id="nama">
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group">
+          <label>ID</label>
+          <input type="text" id="id">
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label>Tempat Lahir</label>
+        <input type="text" id="tempatLahir">
+      </div>
+      <div class="col">
+        <label>Tanggal Lahir</label>
+        <input type="date" id="tanggalLahir">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Jenis Kelamin</label>
+      <select id="jenisKelamin">
+        <option value="">Pilih</option>
+        <option value="Laki-laki">Laki-laki</option>
+        <option value="Perempuan">Perempuan</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>No Telp</label>
+      <input type="text" id="noTelp">
+    </div>
+
+    <button class="btn-success" onclick="submitForm()">Register</button>
+
+    <div id="resultBox"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+let clientList = [];
+
+document.addEventListener("DOMContentLoaded", function() {
+
+  google.script.run
+    .withSuccessHandler(function(data){
+      clientList = data || [];
+    })
+    .getClients();
+
+});
+
+const searchInput = document.getElementById("clientSearch");
+const resultDiv = document.getElementById("searchResults");
+
+searchInput.addEventListener("input", function() {
+
+  const value = this.value.toLowerCase();
+  resultDiv.innerHTML = "";
+
+  if (!value) {
+    document.getElementById("addNewBtn").classList.add("hidden");
+    return;
+  }
+
+  const results = clientList.filter(c =>
+    c.name.toLowerCase().includes(value)
+  );
+
+  if (results.length === 0) {
+    document.getElementById("addNewBtn").classList.remove("hidden");
+    return;
+  }
+
+  document.getElementById("addNewBtn").classList.add("hidden");
+
+  results.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "search-result-item";
+    div.textContent = r.name + " (" + r.registerNumber + ")";
+
+    div.addEventListener("click", function() {
+      searchInput.value = r.name;
+      resultDiv.innerHTML = "";
+      loadClient(r.name);
+    });
+
+    resultDiv.appendChild(div);
+  });
+
+});
+
+document.getElementById("addNewBtn").addEventListener("click", function() {
+  document.getElementById("formSection").classList.remove("hidden");
+});
+
+function loadClient(name) {
+
+  console.log("Klik:", name);
+
+  google.script.run
+    .withSuccessHandler(function(data){
+      console.log("Data diterima:", data);
+
+      if (!data) {
+        alert("Data tidak ditemukan!");
+        return;
+      }
+
+      document.getElementById("formSection").classList.remove("hidden");
+
+      document.getElementById("nama").value = data[4] || "";
+      document.getElementById("id").value = data[1] || "";
+    })
+    .withFailureHandler(function(error){
+      console.error("ERROR SERVER:", error);
+      alert("Terjadi error: " + error.message);
+    })
+    .getClientDetail(name);
+
+}
+
+
+function submitForm() {
+
+  const data = {
+    nama: document.getElementById("nama").value,
+    id: document.getElementById("id").value,
+    tempatLahir: document.getElementById("tempatLahir").value,
+    tanggalLahir: document.getElementById("tanggalLahir").value,
+    jenisKelamin: document.getElementById("jenisKelamin").value,
+    noTelp: document.getElementById("noTelp").value
+  };
+
+  google.script.run
+    .withSuccessHandler(function(response){
+
+      document.getElementById("resultBox").innerText =
+        "Berhasil. Nomor Register: " + response;
+
+    })
+    .register(data);
+
+}
+
+</script>
+
+</body>
+</html>
