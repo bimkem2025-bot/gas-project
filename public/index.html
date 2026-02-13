@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gas Project Web App</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Gas Project - Task Tracker</h1>
+      <p class="subtitle">Semua fungsi berjalan: tambah, edit, checklist, filter, hapus, dan simpan otomatis.</p>
+
+      <form id="taskForm" class="task-form">
+        <input id="taskInput" type="text" placeholder="Masukkan task..." aria-label="Task input" required />
+        <button type="submit">Tambah</button>
+      </form>
+
+      <section class="filters" aria-label="Task filters">
+        <button data-filter="all" class="active">Semua</button>
+        <button data-filter="active">Belum Selesai</button>
+        <button data-filter="done">Selesai</button>
+      </section>
+
+      <ul id="taskList" class="task-list"></ul>
+      <p id="emptyState" class="empty">Belum ada task.</p>
+
+      <footer>
+        <small id="healthStatus">Mengecek status server...</small>
+      </footer>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
